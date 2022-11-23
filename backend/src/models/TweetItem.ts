@@ -1,4 +1,5 @@
-export interface Todo {
+export interface TweetItem {
+  userId: string
   tweetId: string
   createdAt: string
   content: string

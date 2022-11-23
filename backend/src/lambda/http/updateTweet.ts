@@ -4,17 +4,17 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 
-import { updateTodo } from '../../helpers/todos'
-import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { updateTweet } from '../../helpers/tweets'
+import { UpdateTweetRequest } from '../../requests/UpdateTweetRequest'
 import { getUserId } from '../utils'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
-    const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-    // /TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+    const tweetId = event.pathParameters.tweetId
+    const updatedTweet: UpdateTweetRequest = JSON.parse(event.body)
+    // /TODO: Update a Tweet item with the provided id using values in the "updatedTweet" object
     const userId = getUserId(event)
-    const item = await updateTodo(userId, todoId, updatedTodo)
+    const item = await updateTweet(userId, tweetId, updatedTweet)
 
     return {
       statusCode: 201,

@@ -1,4 +1,4 @@
-export interface UpdateTodoRequest {
+export interface TweetUpdate {
   content: string
   public: boolean
 }

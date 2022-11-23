@@ -1,7 +1,7 @@
-# /TODO: Change the name of the org 
+# /tweet: Change the name of the org 
 org: ngviethoang
-app: serverless-todo-app
-service: serverless-todo-app
+app: serverless-tweet-app
+service: serverless-tweet-app
 
 plugins:
   - serverless-webpack
@@ -22,9 +22,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-${self:provider.stage}-vh
+    TWEETS_TABLE: tweets-${self:provider.stage}
+    TWEETS_CREATED_AT_INDEX: CreatedAtIndex
+    ATTACHMENT_S3_BUCKET: serverless-c4-tweet-images-${self:provider.stage}-vh
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -46,21 +46,20 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetTweets:
+    handler: src/lambda/http/getTweets.handler
     events:
       - http:
           method: get
-          path: todos
+          path: tweets
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
           - s3:GetObject
@@ -70,63 +69,60 @@ functions:
           - xray:PutTraceSegments
         Resource: "*"
 
-  # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
   # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
   # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateTweet:
+    handler: src/lambda/http/createTweet.handler
     events:
       - http:
           method: post
-          path: todos
+          path: tweets
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-tweet-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
         Resource: "*"
 
-  # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateTweet:
+    handler: src/lambda/http/updateTweet.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: tweets/{tweetId}
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/update-todo-model.json)}
+              application/json: ${file(models/update-tweet-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
         Resource: "*"
 
-  # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteTweet:
+    handler: src/lambda/http/deleteTweet.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: tweets/{tweetId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -134,7 +130,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
           - s3:DeleteObject
@@ -144,14 +140,13 @@ functions:
           - xray:PutTraceSegments
         Resource: "*"
 
-  # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: tweets/{tweetId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -159,7 +154,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -172,7 +167,6 @@ functions:
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources
-    # TODO: Fill the properties
     # Feel free to change the names as you like. 
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
@@ -185,26 +179,26 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
     
-    # TODO: Create a DynamoDB table with local secondary index and a composite key
-    TodosTable:
+    # Create a DynamoDB table with local secondary index and a composite key
+    tweetsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: tweetId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: tweetId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.TWEETS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.TWEETS_CREATED_AT_INDEX}
             KeySchema:
             - AttributeName: userId
               KeyType: HASH
@@ -213,8 +207,8 @@ resources:
             Projection:
               ProjectionType: ALL
 
-    # TODO: Complete the bucket properties below. 
-    # Do not forget to add the CorsConfiguration propoerty
+    # Complete the bucket properties below. 
+    # Do not forget to add the CorsConfiguration property
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -233,7 +227,7 @@ resources:
                 - HEAD
               MaxAge: 3000
 
-    # TODO: Complete the policy below and attach it to the bucket defined above
+    # Complete the policy below and attach it to the bucket defined above
     # For cross referencing the name of the bucket, use "!Ref AttachmentsBucket"
     BucketPolicy:
       Type: AWS::S3::BucketPolicy

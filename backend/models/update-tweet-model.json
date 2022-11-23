@@ -3,17 +3,16 @@
   "title": "group",
   "type": "object",
   "properties": {
-    "name": {
-      "type": "string",
-      "pattern": "^(?!\\s*$).+"
-    },
-    "dueDate": {
+    "content": {
       "type": "string"
+    },
+    "public": {
+      "type": "boolean"
     }
   },
   "required": [
-    "name",
-    "dueDate"
+    "content",
+    "public"
   ],
   "additionalProperties": false
 }

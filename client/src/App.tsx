@@ -36,7 +36,7 @@ export default class App extends Component<AppProps, AppState> {
   render() {
     return (
       <div>
-        <Segment style={{ padding: '8em 0em' }} vertical>
+        <Segment style={{ padding: '1em 0em' }} vertical>
           <Grid container stackable verticalAlign="middle">
             <Grid.Row>
               <Grid.Column width={16}>
@@ -91,15 +91,15 @@ export default class App extends Component<AppProps, AppState> {
         <Route
           path="/"
           exact
-          render={props => {
+          render={(props) => {
             return <Todos {...props} auth={this.props.auth} />
           }}
         />
 
         <Route
-          path="/todos/:todoId/edit"
+          path="/tweets/:todoId/edit"
           exact
-          render={props => {
+          render={(props) => {
             return <EditTodo {...props} auth={this.props.auth} />
           }}
         />

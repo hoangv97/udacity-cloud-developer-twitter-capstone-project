@@ -26,10 +26,10 @@ export class AttachmentUtils {
     })
   }
 
-  async deleteAttachment(todoId: string) {
+  async deleteAttachment(tweetId: string) {
     await this.s3.deleteObject({
       Bucket: this.bucketName,
-      Key: todoId
+      Key: tweetId
     }).promise()
   }
 }
