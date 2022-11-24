@@ -72,13 +72,13 @@ export class TweetsAccess {
     }).promise()
   }
 
-  async updateAttachment(userId: string, tweetId: string): Promise<void> {
+  async updateAttachment(userId: string, tweetId: string, downloadUrl: string): Promise<void> {
     await this.docClient.update({
       TableName: this.tweetsTable,
       Key: { userId, tweetId },
       UpdateExpression: "set attachmentUrl=:a",
       ExpressionAttributeValues: {
-        ":a": tweetId
+        ":a": downloadUrl
       },
       ReturnValues: "NONE"
     }).promise()

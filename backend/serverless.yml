@@ -62,10 +62,6 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
       - Effect: Allow
         Action:
-          - s3:GetObject
-        Resource: "arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*"
-      - Effect: Allow
-        Action:
           - xray:PutTraceSegments
         Resource: "*"
 

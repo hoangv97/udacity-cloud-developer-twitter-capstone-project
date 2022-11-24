@@ -3,8 +3,8 @@ import { TweetItem } from '../models/TweetItem';
 import { CreateTweetRequest } from '../requests/CreateTweetRequest';
 import { UpdateTweetRequest } from '../requests/UpdateTweetRequest';
 import { createLogger } from '../utils/logger';
-import { AttachmentUtils } from './attachmentUtils';
-import { TweetsAccess } from './tweetsAccess';
+import { AttachmentUtils } from '../storageLayer/attachmentUtils';
+import { TweetsAccess } from '../dataLayer/tweetsAccess';
 
 // /TODO: Implement businessLogic
 const tweetsAccess = new TweetsAccess()
@@ -15,11 +15,6 @@ const logger = createLogger('tweets')
 export async function getTweetsForUser(userId: string): Promise<TweetItem[]> {
   logger.info('get tweets for user', userId)
   const items = await tweetsAccess.getAllTweets(userId)
-
-  for (let item of items) {
-    if (!!item['attachmentUrl'])
-      item['attachmentUrl'] = attachmentUtils.getDownloadUrl(item['attachmentUrl'])
-  }
 
   return items
 }
@@ -66,6 +61,7 @@ export async function createAttachmentPresignedUrl(userId: string, tweetId: stri
   }
 
   const uploadUrl = attachmentUtils.getUploadUrl(tweetId)
-  await tweetsAccess.updateAttachment(userId, tweetId)
+  const downloadUrl = attachmentUtils.getDownloadUrl(tweetId)
+  await tweetsAccess.updateAttachment(userId, tweetId, downloadUrl)
   return uploadUrl
 }
